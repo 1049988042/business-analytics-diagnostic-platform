@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+import {decompose} from '../lib/discovery/foundation.ts';
+const evidence=JSON.parse(fs.readFileSync('docs/verified-monthly-aggregates.json','utf8'));
+const c=evidence.months.find(m=>m.month==='2017-03'),p=evidence.months.find(m=>m.month==='2017-02');
+const result=decompose(c,p);
+for(const check of Object.values(result.checks))assert.equal(check.passed,true);
+assert.equal(result.leading.revenue,'transactions');assert.equal(result.leading.transactions,'visitors');
+fs.writeFileSync('docs/verified-case-result.json',JSON.stringify({evidence:evidence.evidence,verificationDate:evidence.verificationDate,...result},null,2)+'\n');
+console.log(JSON.stringify({growth:Object.fromEntries(Object.entries(result.metrics).map(([k,v])=>[k,v.relative])),shapley:result.branches,checks:result.checks,summaries:result.summaries},null,2));

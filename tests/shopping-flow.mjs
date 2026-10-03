@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {ingest} from '../lib/imports.ts';
+import {shoppingTransitions,dashboard} from '../lib/query.ts';
+const actions=[['2','3'],['3','5'],['5','6'],['2'],['2','3','5','6']];
+await ingest('sample-v1',0,actions.map((a,i)=>({fullVisitorId:String(i+1),visitId:i+1,date:'20170101',channelGrouping:'Direct',device:{deviceCategory:i===4?'mobile':'desktop'},totals:{},hits:a.map((action_type,n)=>({time:n+1,hitNumber:n+1,eCommerceAction:{action_type},product:[]}))})));
+const all=await shoppingTransitions({sample:true});assert.deepEqual(all.rows.map(r=>[r.numerator,r.denominator,r.rate]),[[2,3,2/3],[2,3,2/3],[2,3,2/3]]);
+const filtered=await shoppingTransitions({sample:true,device:'desktop'});assert.deepEqual(filtered.rows.map(r=>r.rate),[0.5,0.5,0.5]);
+const empty=await shoppingTransitions({sample:true,channel:'missing'});assert.ok(empty.rows.every(r=>r.rate===null&&r.denominator===0));
+const outside=await shoppingTransitions({sample:true,months:['2017-02']});assert.ok(outside.rows.every(r=>r.rate===null));
+const data=await dashboard({sample:true});assert.equal(data.transitions.length,3);assert.ok(data.transitionEvidence.sql.includes('AND'));assert.equal(data.funnel.adds,3);
+console.log('5 shopping transition checks passed; independent counts are not divided directly');
+// Reverse-ordered events still count in the existing intersection metric;
+// its explicit metadata must prevent consumers calling it ordered conversion.
+await ingest('sample-v1',1,[{fullVisitorId:'reverse',visitId:99,date:'20170101',channelGrouping:'Reverse',device:{deviceCategory:'desktop'},totals:{},hits:['6','5','3','2'].map((action_type,i)=>({time:(i+1)*100,hitNumber:i+1,eCommerceAction:{action_type},product:[]}))}]);
+const reverse=await shoppingTransitions({sample:true,channel:'Reverse'});
+assert.ok(reverse.rows.every(r=>r.numerator===1&&r.denominator===1&&r.basis==='session_intersection'&&r.ordered===false));
+const reverseDashboard=await dashboard({sample:true,channel:'Reverse'});
+assert.deepEqual(reverseDashboard.transitions,reverse.rows);
+assert.equal((825/1661*100).toFixed(2),'49.67');
+console.log('Reverse-order intersection is explicitly labelled unordered; 825 / 1661 = 49.67%');

@@ -1,0 +1,10 @@
+// Streaming parser preserves ID strings and CSV quoted newlines, commas and quotes.
+export async function* readRecords(file:File):AsyncGenerator<Record<string,any>>{
+ let stream:any=file.stream();if(file.name.toLowerCase().endsWith('.gz'))stream=stream.pipeThrough(new DecompressionStream('gzip'));const reader=stream.pipeThrough(new TextDecoderStream('utf-8',{fatal:true})).getReader();const csv=/\.csv(?:\.gz)?$/i.test(file.name);let headers:string[]|null=null;
+ function object(cells:string[]){if(cells.length===1&&cells[0]==='')return null;if(!headers){headers=cells.map(c=>c.replace(/^\uFEFF/,'').trim());if(headers.some(h=>!h)||new Set(headers).size!==headers.length||headers.length>80)throw Error('CSV 列名为空、重复或超过 80 列');return null}if(cells.length!==headers.length)throw Error('CSV 某条记录的字段数与表头不一致');return Object.fromEntries(headers.map((h,i)=>[h,cells[i]]))}
+ let buffer='',cell='',row:string[]=[],state:'plain'|'quoted'|'after'='plain',skipLF=false;
+ try{while(true){const {value,done}=await reader.read();if(done)break;if(!csv){buffer+=value;let i;while((i=buffer.indexOf('\n'))!==-1){const line=buffer.slice(0,i).trim().replace(/^\uFEFF/,'');buffer=buffer.slice(i+1);if(line)yield JSON.parse(line)}if(buffer.length>4_000_000)throw Error('单条记录超过 4 MB');continue}
+ for(const ch of value){if(skipLF){skipLF=false;if(ch==='\n')continue}if(state==='quoted'){if(ch==='"')state='after';else cell+=ch;continue}if(state==='after'&&ch==='"'){cell+='"';state='quoted';continue}if(state==='after'&&ch!==','&&ch!=='\r'&&ch!=='\n'){if(ch===' '||ch==='\t')continue;throw Error('CSV 引号后有无效字符')}if(ch==='"'){if(cell)throw Error('CSV 引号位置不合法');state='quoted';continue}if(ch===','||ch==='\r'||ch==='\n'){row.push(cell);cell='';state='plain';if(ch!==','){const r=object(row);row=[];if(r)yield r;if(ch==='\r')skipLF=true}}else cell+=ch;if(cell.length>1_000_000||row.length>80)throw Error('字段长度或列数超出限制')}
+ }if(csv){if(state==='quoted')throw Error('CSV 引号未闭合');if(cell||row.length){row.push(cell);const r=object(row);if(r)yield r}}else if(buffer.trim())yield JSON.parse(buffer.trim());}
+ finally{await reader.cancel().catch(()=>{})}
+}

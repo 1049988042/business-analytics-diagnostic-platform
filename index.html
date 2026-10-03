@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="可交互的数据分析练习台，用模拟经营数据练习指标拆解与业绩诊断。" />
+  <title>经营数据智能诊断平台 · 数据分析练习台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="经营数据智能诊断平台首页">
+        <span class="brand-mark">数</span>
+        <span>
+          <strong>经营数据智能诊断平台</strong>
+          <small>数据分析练习台</small>
+        </span>
+      </a>
+      <div class="topbar-meta">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>模拟数据 · 2026 上半年</span>
+        <button class="ghost-button" id="dataNoteButton" type="button">数据说明</button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside class="sidebar" aria-label="筛选条件">
+        <div class="sidebar-heading">
+          <p class="eyebrow">FILTERS</p>
+          <h2>分析范围</h2>
+          <button class="text-button" id="resetButton" type="button">重置</button>
+        </div>
+
+        <label class="field">
+          <span>观察月份</span>
+          <select id="monthFilter">
+            <option value="2026-06">2026 年 6 月</option>
+            <option value="2026-05">2026 年 5 月</option>
+            <option value="2026-04">2026 年 4 月</option>
+            <option value="2026-03">2026 年 3 月</option>
+            <option value="2026-02">2026 年 2 月</option>
+            <option value="2026-01">2026 年 1 月</option>
+            <option value="all">2026 上半年</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>渠道</span>
+          <select id="channelFilter"><option value="all">全部渠道</option></select>
+        </label>
+
+        <label class="field">
+          <span>地区</span>
+          <select id="regionFilter"><option value="all">全部地区</option></select>
+        </label>
+
+        <label class="field">
+          <span>品类</span>
+          <select id="categoryFilter"><option value="all">全部品类</option></select>
+        </label>
+
+        <div class="filter-summary">
+          <span>当前样本</span>
+          <strong id="sampleCount">—</strong>
+          <small>条聚合经营记录</small>
+        </div>
+
+        <div class="sidebar-tip">
+          <span class="tip-icon">↗</span>
+          <p>点击渠道贡献图的横条或渠道表行，也能快速筛选。</p>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section class="page-intro">
+          <div>
+            <p class="eyebrow">PERFORMANCE OVERVIEW</p>
+            <h1>生意发生了什么？</h1>
+            <p id="scopeDescription">观察 2026 年 6 月，与 5 月同口径对比</p>
+          </div>
+          <div class="intro-actions">
+            <button class="secondary-button" id="newQuestionButton" type="button">换一道诊断题</button>
+            <button class="primary-button" id="focusAnomalyButton" type="button">查看最大异常</button>
+          </div>
+        </section>
+
+        <section class="metric-grid" aria-label="核心经营指标">
+          <article class="metric-card" data-metric="revenue">
+            <div class="metric-label"><span>销售额</span><span class="metric-icon">¥</span></div>
+            <strong id="revenueValue">—</strong>
+            <div class="metric-compare" id="revenueCompare">—</div>
+          </article>
+          <article class="metric-card" data-metric="orders">
+            <div class="metric-label"><span>订单数</span><span class="metric-icon">单</span></div>
+            <strong id="ordersValue">—</strong>
+            <div class="metric-compare" id="ordersCompare">—</div>
+          </article>
+          <article class="metric-card" data-metric="aov">
+            <div class="metric-label"><span>客单价</span><span class="metric-icon">客</span></div>
+            <strong id="aovValue">—</strong>
+            <div class="metric-compare" id="aovCompare">—</div>
+          </article>
+          <article class="metric-card" data-metric="visitors">
+            <div class="metric-label"><span>访问人数</span><span class="metric-icon">访</span></div>
+            <strong id="visitorsValue">—</strong>
+            <div class="metric-compare" id="visitorsCompare">—</div>
+          </article>
+          <article class="metric-card" data-metric="conversion">
+            <div class="metric-label"><span>转化率</span><span class="metric-icon">%</span></div>
+            <strong id="conversionValue">—</strong>
+            <div class="metric-compare" id="conversionCompare">—</div>
+          </article>
+        </section>
+
+        <section class="analysis-grid">
+          <article class="panel trend-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">TREND</p>
+                <h2>经营趋势</h2>
+              </div>
+              <div class="segmented" role="group" aria-label="趋势指标">
+                <button class="segment active" type="button" data-trend="revenue">销售额</button>
+                <button class="segment" type="button" data-trend="orders">订单数</button>
+                <button class="segment" type="button" data-trend="conversion">转化率</button>
+              </div>
+            </div>
+            <div class="chart-wrap" id="trendChart" aria-label="经营趋势折线图"></div>
+            <div class="chart-footnote"><span class="legend-dot"></span><span id="trendLegend">每日销售额</span><span class="chart-hint">悬停查看明细</span></div>
+          </article>
+
+          <article class="panel driver-panel" id="driverPanel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">CHANNEL DRIVERS</p>
+                <h2>渠道销售贡献</h2>
+              </div>
+              <span class="comparison-label" id="driverComparison">较上月</span>
+            </div>
+            <div class="driver-list" id="driverChart"></div>
+            <p class="panel-note" id="driverInsight">—</p>
+          </article>
+        </section>
+
+        <section class="lower-grid">
+          <article class="panel table-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">CHANNEL DETAIL</p>
+                <h2>渠道表现明细</h2>
+              </div>
+              <span class="table-caption">点击行筛选</span>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>渠道</th>
+                    <th>销售额</th>
+                    <th>订单数</th>
+                    <th>客单价</th>
+                    <th>访问人数</th>
+                    <th>转化率</th>
+                    <th>销售额变化</th>
+                  </tr>
+                </thead>
+                <tbody id="channelTableBody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <aside class="practice-card" id="practiceCard">
+            <div class="practice-topline">
+              <span>诊断练习</span>
+              <span id="questionNumber">01</span>
+            </div>
+            <p class="practice-kicker">不要急着猜，先找证据</p>
+            <h2 id="questionText">—</h2>
+            <div class="question-steps" id="questionSteps"></div>
+            <button class="reveal-button" id="revealButton" type="button">查看参考判断</button>
+            <div class="answer-box" id="answerBox" hidden></div>
+          </aside>
+        </section>
+
+        <footer class="footer">
+          <span>数据为教学模拟，不代表真实公司经营情况</span>
+          <span>销售额 = 访问人数 × 转化率 × 客单价</span>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <dialog id="dataNoteDialog">
+    <div class="dialog-content">
+      <button class="dialog-close" id="dialogClose" type="button" aria-label="关闭">×</button>
+      <p class="eyebrow">ABOUT THE DATA</p>
+      <h2>这组模拟数据怎么来的</h2>
+      <p>数据覆盖 2026 年 1 月至 6 月，按日期、渠道、地区和品类生成。波动幅度参考常见电商经营场景，包含春节淡季、春季促销、渠道预算调整和流量质量变化。</p>
+      <p>它刻意保留了一些能被指标拆解解释的变化，但没有设置极端增长或离谱转化率。你看到的订单数、销售额、客单价、访问人数和转化率始终保持数学口径一致。</p>
+      <button class="primary-button" id="dialogConfirm" type="button">知道了</button>
+    </div>
+  </dialog>
+
+  <div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

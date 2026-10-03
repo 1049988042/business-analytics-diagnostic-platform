@@ -1,0 +1,4 @@
+import {createRequire} from 'node:module';import {dirname} from 'node:path';import {spawnSync} from 'node:child_process';
+const require=createRequire(import.meta.url);const {build}=require(require.resolve('esbuild',{paths:[dirname(require.resolve('wrangler/package.json'))]}));
+await build({entryPoints:['tests/public-demo.test.ts'],outfile:'.sites-runtime/public-demo-test.mjs',bundle:true,platform:'node',format:'esm',packages:'external',plugins:[{name:'deny-runtime-access',setup(b){b.onResolve({filter:/^cloudflare:workers$/},()=>({path:'runtime',namespace:'test'}));b.onLoad({filter:/.*/,namespace:'test'},()=>({contents:"export const env=new Proxy({},{get(){throw Error('Unexpected database or secret access')}});"}))}}]});
+const r=spawnSync(process.execPath,['.sites-runtime/public-demo-test.mjs'],{stdio:'inherit'});process.exit(r.status??1);

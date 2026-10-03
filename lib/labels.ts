@@ -1,0 +1,1 @@
+export const labels:Record<string,string>={revenue:'GMV',transactions:'交易数',visitors:'访客数',buyers:'购买人数',conversion:'购买转化率',aov:'客单价',sessions:'会话数',views:'浏览会话',adds:'加购会话',checkouts:'结账会话',purchases:'购买会话',ordered:'加购后购买会话',cart_conversion:'加购后购买比例',quantity:'销售数量',product_revenue:'商品 GMV',add_rate:'浏览会话加购比例'};

@@ -1,0 +1,79 @@
+{
+  "environment": "Local Node SQLite in-memory; no production network or D1 timing",
+  "dataset": {
+    "synthetic": true,
+    "description": "10000 unique session IDs, cycling development sample; NOT January data"
+  },
+  "checks": 11,
+  "reports": [
+    {
+      "mode": "legacy",
+      "insertStatements": 7016,
+      "readCalls": 318,
+      "batchCalls": 318,
+      "writeWallMs": 237.1312550000032,
+      "transactions": 318,
+      "processingMs": 1271.154268,
+      "sessions": 10000,
+      "events": 284072,
+      "productRows": 31094,
+      "storedRows": 41094,
+      "maxBatch": 40,
+      "fingerprint": "a5dd963fbe2ca9efd752c7adc38be2483cb3965aa2159e330f66464bfd9ddead",
+      "storedRowsPerSecond": 173296.43028288046,
+      "totals": {
+        "sessions": 10000,
+        "visitors": 10000,
+        "buyers": 3330,
+        "transactions": 3330,
+        "events": 284072
+      }
+    },
+    {
+      "mode": "bulk-5000",
+      "insertStatements": 33,
+      "readCalls": 11,
+      "batchCalls": 11,
+      "writeWallMs": 413.8689330000002,
+      "transactions": 11,
+      "processingMs": 1631.350821,
+      "sessions": 10000,
+      "events": 284072,
+      "productRows": 31094,
+      "storedRows": 41094,
+      "maxBatch": 976,
+      "fingerprint": "a5dd963fbe2ca9efd752c7adc38be2483cb3965aa2159e330f66464bfd9ddead",
+      "storedRowsPerSecond": 99292.30421361436,
+      "totals": {
+        "sessions": 10000,
+        "visitors": 10000,
+        "buyers": 3330,
+        "transactions": 3330,
+        "events": 284072
+      }
+    },
+    {
+      "mode": "bulk-10000",
+      "insertStatements": 33,
+      "readCalls": 11,
+      "batchCalls": 11,
+      "writeWallMs": 398.10389999999916,
+      "transactions": 11,
+      "processingMs": 1542.1812120000004,
+      "sessions": 10000,
+      "events": 284072,
+      "productRows": 31094,
+      "storedRows": 41094,
+      "maxBatch": 976,
+      "fingerprint": "a5dd963fbe2ca9efd752c7adc38be2483cb3965aa2159e330f66464bfd9ddead",
+      "storedRowsPerSecond": 103224.30903088386,
+      "totals": {
+        "sessions": 10000,
+        "visitors": 10000,
+        "buyers": 3330,
+        "transactions": 3330,
+        "events": 284072
+      }
+    }
+  ]
+}

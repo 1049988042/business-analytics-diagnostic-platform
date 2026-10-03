@@ -1,0 +1,36 @@
+{
+  "verificationDate": "2026-10-03",
+  "evidence": "Live D1 active months joined to committed import reports; aggregate snapshot, not a fresh full session-table scan. No visitor IDs or import IDs included.",
+  "months": [
+    {
+      "month": "2017-01",
+      "sessions": 64694,
+      "days": 31,
+      "visitors": 53041,
+      "buyers": 662,
+      "transactions": 713,
+      "revenue": 97877.79,
+      "hits": 300074
+    },
+    {
+      "month": "2017-02",
+      "sessions": 62192,
+      "days": 28,
+      "visitors": 51364,
+      "buyers": 666,
+      "transactions": 733,
+      "revenue": 108756.52,
+      "hits": 270285
+    },
+    {
+      "month": "2017-03",
+      "sessions": 69931,
+      "days": 31,
+      "visitors": 57888,
+      "buyers": 809,
+      "transactions": 993,
+      "revenue": 130964.27,
+      "hits": 300909
+    }
+  ]
+}

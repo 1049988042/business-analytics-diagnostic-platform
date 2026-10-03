@@ -1,0 +1,77 @@
+import assert from 'node:assert/strict';
+import {writeFileSync} from 'node:fs';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import AnalysisSummary from '../app/analysis-summary';
+import {analyze} from '../lib/discovery/analysis';
+import {decompose} from '../lib/discovery/foundation';
+import {coverageHints} from '../lib/discovery/coverage';
+import {startSession,visitMetric,recordDimensions,recordBack,sessionSummary,nodeId,resumeTarget,sessionContext,responseKey} from '../lib/analysis-session';
+import {queryLog,execute} from './analysis-db';
+
+// A deliberate synthetic fixture for dimensional paths; never label it real GA data.
+execute(`WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<1200)
+ INSERT INTO sessions SELECT 'mar','session-test-'||x,'2017-03-01','2017-03','new-'||x,CASE WHEN x<1050 THEN 'Organic Search' ELSE 'Direct' END,CASE WHEN x%2=0 THEN 'mobile' ELSE 'desktop' END,1,80,1,1,1,1,1,1 FROM n;
+ WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM n WHERE x<500)
+ INSERT INTO sessions SELECT 'feb','session-test-'||x,'2017-02-01','2017-02','old-'||x,CASE WHEN x<400 THEN 'Organic Search' ELSE 'Direct' END,CASE WHEN x%2=0 THEN 'mobile' ELSE 'desktop' END,1,100,1,1,1,1,1,1 FROM n;`);
+const filters={months:['2017-03']},snapshot:any=await analyze({filters});
+let s=startSession(snapshot,'revenue','test-session');
+assert.equal(s.nodes[nodeId('metric','aov')].presented,true);
+assert.equal(s.nodes[nodeId('metric','aov')].explored,false);
+assert.equal(s.nodes[nodeId('metric','visitors')].presented,false);
+s=visitMetric(s,'transactions');s=visitMetric(s,'visitors');
+const dimensions:any=await analyze({filters,metric:'visitors',recommendation:'auto'});
+const recommended=dimensions.recommendation.dimension||dimensions.dimensions[0].dimension;
+s=recordDimensions(s,'visitors',[],dimensions,recommended,false);
+assert.equal(s.nodes[nodeId('dimension','visitors',[],recommended)].presented,true);
+assert.equal(s.nodes[nodeId('dimension','visitors',[],recommended)].explored,false);
+assert.equal(sessionSummary(s).dimensions.length,0);
+const candidate=dimensions.recommendation.candidates.find((c:any)=>c.dimension===recommended);
+const group=candidate.highlights.positive[0]||candidate.highlights.negative[0];assert.ok(group);
+const scope=[{dimension:recommended,value:group.name}];
+const scoped:any=await analyze({filters,metric:'visitors',scope,recommendation:'auto'});
+const remaining=scoped.availableDimensions[0];
+s=recordDimensions(s,'visitors',scope,scoped,remaining,true);
+assert.equal(s.nodes[nodeId('group','visitors',[],recommended,group.name)].explored,true);
+assert.equal(sessionSummary(s).dimensions.length,2);
+assert.deepEqual(s.nodes[nodeId('dimension','visitors',scope,remaining)].scope,scope);
+const beforeBack=Object.keys(s.nodes).length;s=recordBack(s,'visitors',[]);s=visitMetric(s,'revenue','back');
+assert.equal(Object.keys(s.nodes).length,beforeBack);
+assert.ok(sessionSummary(s).missing.some(n=>n.metric==='aov'));
+const omitted=s.nodes[nodeId('metric','aov')];const target=resumeTarget(omitted);
+assert.deepEqual(target,{metric:'aov',scope:[],dimension:null});
+s=visitMetric(s,target.metric,'resume');
+assert.ok(!sessionSummary(s).missing.some(n=>n.metric==='aov'));
+assert.equal(sessionSummary(s).dimensions.length,2);
+const restored=resumeTarget(s.nodes[nodeId('dimension','visitors',scope,remaining)]);
+assert.deepEqual(restored.scope,scope);assert.equal(restored.dimension,remaining);
+assert.equal(s.responses[responseKey('visitors',restored.scope)],scoped);
+const wrongScope=structuredClone(scoped);wrongScope.inputFilters={...wrongScope.inputFilters,channel:'Wrong channel'};assert.equal(recordDimensions(s,'visitors',scope,wrongScope,remaining,true),s);
+const count=queryLog.length;
+const html=renderToStaticMarkup(<AnalysisSummary session={s} onContinue={()=>{}}/>);
+assert.equal(queryLog.length,count,'summary must never issue SQL');
+assert.ok(html.includes(group.name));assert.ok(html.includes('范围内'));assert.ok(html.includes('尚未展开'));
+assert.ok(!html.includes('贡献 500%'));assert.ok(!html.includes('完成度'));
+const wrongVersion=structuredClone(scoped);wrongVersion.sourceVersions=[];
+assert.equal(recordDimensions(s,'visitors',scope,wrongVersion,remaining,true),s);
+const changed={...snapshot,inputFilters:{months:['2017-02']}};
+assert.notEqual(sessionContext(snapshot,'revenue'),sessionContext(changed,'revenue'));
+const reset=startSession(changed,'revenue','new-session');assert.equal(sessionSummary(reset).dimensions.length,0);assert.equal(reset.history.length,1);
+const globalDevice=recordDimensions(s,'visitors',[],dimensions,'device',true);
+assert.ok(globalDevice.nodes[nodeId('dimension','visitors',[],'device')]);
+assert.ok(globalDevice.nodes[nodeId('dimension','visitors',scope,remaining)]);
+
+// Historical real aggregate totals supplied in the task; no invented channel/device numbers.
+const real=decompose({revenue:130964.27,transactions:993,visitors:57888,buyers:809},{revenue:108756.52,transactions:733,visitors:51364,buyers:666});
+const actual={...snapshot,sourceVersions:[{month:'2017-02',import_id:'未重新读取；历史汇总示例'},{month:'2017-03',import_id:'未重新读取；历史汇总示例'}],decomposition:real,coverage:coverageHints(real,null)};
+let historical=startSession(actual,'revenue','historical-aggregate-example');historical=visitMetric(historical,'transactions');historical=visitMetric(historical,'visitors');
+assert.equal(historical.nodes[nodeId('metric','aov')].significant,true);
+assert.equal(historical.nodes[nodeId('metric','frequency')].significant,true);
+const reminderBefore=sessionSummary(historical).missing.map(n=>n.metric);
+historical=visitMetric(historical,'aov','resume');const reminderAfter=sessionSummary(historical).missing.map(n=>n.metric);
+assert.ok(reminderBefore.includes('aov'));assert.ok(!reminderAfter.includes('aov'));
+const insignificant=coverageHints({...real,branches:{revenue:[{key:'transactions',amount:999},{key:'aov',amount:1}]}},null);assert.equal(insignificant.factors[1].significant,false);
+const policyStarted=performance.now();for(let i=0;i<10000;i++)coverageHints(real,dimensions.recommendation,dimensions.dimensions);const policyMsPerCall=(performance.now()-policyStarted)/10000;
+writeFileSync('.sites-runtime/session-example.html',renderToStaticMarkup(<AnalysisSummary session={historical} onContinue={()=>{}}/>));
+writeFileSync('.sites-runtime/session-validation.json',JSON.stringify({syntheticPath:{recommended,group:group.name,remaining,scope},historicalAggregateReminder:{before:reminderBefore,after:reminderAfter},policyMsPerCall,sessionShape:{id:s.id,root:s.root,period:s.period,filters:s.filters,sourceVersions:s.sourceVersions,metricVersion:s.metricVersion,coverageVersion:s.coverageVersion,nodeExample:s.nodes[nodeId('dimension','visitors',scope,remaining)]},assertions:'branch retention, scoped restore, computed/presented/explored separation, significant reminders, no summary SQL, reset and historical aggregate checks passed'},null,2));
+console.log('Session summary: branch retention, scope restore, coverage state, version boundaries, render and zero-query summary passed.');

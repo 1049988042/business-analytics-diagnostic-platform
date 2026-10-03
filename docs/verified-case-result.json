@@ -1,0 +1,287 @@
+{
+  "evidence": "Live D1 active months joined to committed import reports; aggregate snapshot, not a fresh full session-table scan. No visitor IDs or import IDs included.",
+  "verificationDate": "2026-10-03",
+  "type": "MetricDecomposition",
+  "method": "hierarchical-shapley-v1",
+  "config": {
+    "revenue": {
+      "operation": "multiply",
+      "children": [
+        "transactions",
+        "aov"
+      ]
+    },
+    "transactions": {
+      "operation": "multiply",
+      "children": [
+        "visitors",
+        "conversion",
+        "frequency"
+      ]
+    },
+    "buyers": {
+      "operation": "multiply",
+      "children": [
+        "visitors",
+        "conversion"
+      ]
+    },
+    "visitors": {
+      "operation": "leaf"
+    },
+    "conversion": {
+      "operation": "leaf"
+    },
+    "aov": {
+      "operation": "leaf"
+    },
+    "frequency": {
+      "operation": "leaf"
+    }
+  },
+  "metrics": {
+    "revenue": {
+      "key": "revenue",
+      "label": "GMV",
+      "current": 130964.27,
+      "previous": 108756.52,
+      "delta": 22207.75,
+      "relative": 20.419695297348607,
+      "title": "GMV 为什么增长 20.42%？"
+    },
+    "transactions": {
+      "key": "transactions",
+      "label": "交易数",
+      "current": 993,
+      "previous": 733,
+      "delta": 260,
+      "relative": 35.470668485675304,
+      "title": "交易数 为什么增长 35.47%？"
+    },
+    "aov": {
+      "key": "aov",
+      "label": "客单价",
+      "current": 131.88748237663646,
+      "previous": 148.37178717598908,
+      "delta": -16.48430479935263,
+      "relative": -11.110134287052837,
+      "title": "客单价 为什么下降 11.11%？"
+    },
+    "visitors": {
+      "key": "visitors",
+      "label": "访客数",
+      "current": 57888,
+      "previous": 51364,
+      "delta": 6524,
+      "relative": 12.701502998208863,
+      "title": "访客数 为什么增长 12.70%？"
+    },
+    "buyers": {
+      "key": "buyers",
+      "label": "购买访客数",
+      "current": 809,
+      "previous": 666,
+      "delta": 143,
+      "relative": 21.47147147147147,
+      "title": "购买访客数 为什么增长 21.47%？"
+    },
+    "conversion": {
+      "key": "conversion",
+      "label": "购买转化率",
+      "current": 0.013975262576008845,
+      "previous": 0.01296627988474418,
+      "delta": 0.0010089826912646656,
+      "relative": 7.781589632750492,
+      "title": "购买转化率 为什么增长 7.78%？"
+    },
+    "frequency": {
+      "key": "frequency",
+      "label": "购买用户人均交易次数",
+      "current": 1.2274412855377008,
+      "previous": 1.1006006006006006,
+      "delta": 0.1268406849371002,
+      "relative": 11.5246788769589,
+      "title": "购买用户人均交易次数 为什么增长 11.52%？"
+    }
+  },
+  "branches": {
+    "revenue": [
+      {
+        "key": "transactions",
+        "label": "交易数",
+        "current": 993,
+        "previous": 733,
+        "delta": 260,
+        "relative": 35.470668485675304,
+        "title": "交易数 为什么增长 35.47%？",
+        "amount": 36433.70504184132,
+        "role": "主要正向因素"
+      },
+      {
+        "key": "aov",
+        "label": "客单价",
+        "current": 131.88748237663646,
+        "previous": 148.37178717598908,
+        "delta": -16.48430479935263,
+        "relative": -11.110134287052837,
+        "title": "客单价 为什么下降 11.11%？",
+        "amount": -14225.955041841318,
+        "role": "抵消因素"
+      }
+    ],
+    "transactions": [
+      {
+        "key": "visitors",
+        "label": "访客数",
+        "current": 57888,
+        "previous": 51364,
+        "delta": 6524,
+        "relative": 12.701502998208863,
+        "title": "访客数 为什么增长 12.70%？",
+        "amount": 102.36759363064546,
+        "gmvImpact": 14344.73350839235,
+        "role": "主要正向因素"
+      },
+      {
+        "key": "conversion",
+        "label": "购买转化率",
+        "current": 0.013975262576008845,
+        "previous": 0.01296627988474418,
+        "delta": 0.0010089826912646656,
+        "relative": 7.781589632750492,
+        "title": "购买转化率 为什么增长 7.78%？",
+        "amount": 64.22655820875282,
+        "gmvImpact": 9000.044144732126,
+        "role": "共同作用因素"
+      },
+      {
+        "key": "frequency",
+        "label": "购买用户人均交易次数",
+        "current": 1.2274412855377008,
+        "previous": 1.1006006006006006,
+        "delta": 0.1268406849371002,
+        "relative": 11.5246788769589,
+        "title": "购买用户人均交易次数 为什么增长 11.52%？",
+        "amount": 93.4058481606017,
+        "gmvImpact": 13088.927388716844,
+        "role": "共同作用因素"
+      }
+    ],
+    "buyers": [
+      {
+        "key": "visitors",
+        "label": "访客数",
+        "current": 57888,
+        "previous": 51364,
+        "delta": 6524,
+        "relative": 12.701502998208863,
+        "title": "访客数 为什么增长 12.70%？",
+        "amount": 87.88331150697637,
+        "role": "主要正向因素"
+      },
+      {
+        "key": "conversion",
+        "label": "购买转化率",
+        "current": 0.013975262576008845,
+        "previous": 0.01296627988474418,
+        "delta": 0.0010089826912646656,
+        "relative": 7.781589632750492,
+        "title": "购买转化率 为什么增长 7.78%？",
+        "amount": 55.116688493023624,
+        "role": "共同作用因素"
+      }
+    ]
+  },
+  "leading": {
+    "revenue": "transactions",
+    "transactions": "visitors",
+    "buyers": "visitors"
+  },
+  "summaries": {
+    "revenue": "GMV本期增长 20.42%，主要由交易数增长推动；客单价下降形成部分抵消。",
+    "transactions": "交易数本期增长 35.47%，主要由访客数增长推动；购买转化率增长、购买用户人均交易次数增长共同作用。",
+    "buyers": "购买访客数本期增长 21.47%，主要由访客数增长推动；购买转化率增长共同作用。"
+  },
+  "impactSummary": {
+    "positive": [
+      "transactions"
+    ],
+    "negative": [
+      "aov"
+    ],
+    "delta": 22207.75,
+    "text": "GMV本期增长 20.42%，主要由交易数增长推动；客单价下降形成部分抵消。最终 GMV 净变化 +$22207.75。"
+  },
+  "checks": {
+    "gmv": {
+      "status": "checked",
+      "expected": 22207.75,
+      "actual": 22207.75,
+      "error": 0,
+      "tolerance": 0.0002220775,
+      "passed": true
+    },
+    "transactionBranch": {
+      "status": "checked",
+      "expected": 36433.70504184132,
+      "actual": 36433.70504184132,
+      "error": 0,
+      "tolerance": 0.0003643370504184132,
+      "passed": true
+    },
+    "transactions": {
+      "status": "checked",
+      "expected": 260,
+      "actual": 260,
+      "error": 0,
+      "tolerance": 0.0000026,
+      "passed": true
+    },
+    "buyers": {
+      "status": "checked",
+      "expected": 143,
+      "actual": 143,
+      "error": 0,
+      "tolerance": 0.00000143,
+      "passed": true
+    }
+  },
+  "unavailable": {
+    "revenue": "",
+    "transactions": ""
+  },
+  "values": {
+    "current": {
+      "month": "2017-03",
+      "sessions": 69931,
+      "days": 31,
+      "visitors": 57888,
+      "buyers": 809,
+      "transactions": 993,
+      "revenue": 130964.27,
+      "hits": 300909,
+      "conversion": 0.013975262576008845,
+      "aov": 131.88748237663646,
+      "view_add": null,
+      "add_checkout": null,
+      "checkout_purchase": null,
+      "frequency": 1.2274412855377008
+    },
+    "previous": {
+      "month": "2017-02",
+      "sessions": 62192,
+      "days": 28,
+      "visitors": 51364,
+      "buyers": 666,
+      "transactions": 733,
+      "revenue": 108756.52,
+      "hits": 270285,
+      "conversion": 0.01296627988474418,
+      "aov": 148.37178717598908,
+      "view_add": null,
+      "add_checkout": null,
+      "checkout_purchase": null,
+      "frequency": 1.1006006006006006
+    }
+  }
+}
