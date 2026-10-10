@@ -2,7 +2,7 @@
 
 **Business Analytics Diagnostic Platform · 数据分析求职作品**
 
-### [🌐 在线体验](https://commerce-analysis-demo.yue1049988042.chatgpt.site/#overview) | [📖 项目说明](#1-项目简介)
+### [🌐 在线体验](https://data-practice-lab-0922.yue1049988042.chatgpt.site/#overview) | [📖 项目说明](#1-项目简介)
 
 ## 1. 项目简介
 
