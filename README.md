@@ -1,5 +1,14 @@
 # 经营数据智能诊断平台
 
+> **求职作品集导读｜经营分析 × AI 问数探索**
+>
+> **适用岗位**：数据分析、经营分析、AI 数据分析。项目已公开展示的核心能力是指标体系、SQL 聚合、指标树拆解、Shapley 数学归因与渠道/设备下钻；不能将数学归因解释为因果。
+>
+> **当前展示边界**：本仓库公开版 README 不承诺已上线稳定的 LLM 智能问数或自动报告。LLM 问数、工具调用与答案可靠性评测属于原型探索方向，尚不应当作已验收的线上功能。项目使用的汇总经营案例与本地合成会话须区别对待。
+>
+> **建议阅读**：[真实分析案例](docs/real-case.md) → [指标口径与架构](docs/technical-reference.md) → [验证与局限](docs/validation-results.md)。招聘方可以先查看在线体验，再对照证据。
+
+
 **Business Analytics Diagnostic Platform · 数据分析求职作品**
 
 ### [🌐 在线体验](https://data-practice-lab-0922.yue1049988042.chatgpt.site/#overview) | [📖 项目说明](#1-项目简介)
